@@ -2,7 +2,7 @@
     "name": "better-laravel-dusk",
     "displayName": "Better Laravel Dusk",
     "description": "A better Laravel Dusk test runner",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "harrygulliford",
     "engines": {
         "vscode": "^1.17.0"
@@ -42,22 +42,22 @@
         ],
         "keybindings": [
             {
-                "key": "cmd+t cmd+d cmd+r",
+                "key": "cmd+shift+t cmd+r",
                 "command": "better-laravel-dusk.run",
                 "when": "editorLangId == php"
             },
             {
-                "key": "cmd+t cmd+d cmd+f",
+                "key": "cmd+shift+t cmd+f",
                 "command": "better-laravel-dusk.run-file",
                 "when": "editorLangId == php"
             },
             {
-                "key": "cmd+t cmd+d cmd+s",
+                "key": "cmd+shift+t cmd+s",
                 "command": "better-laravel-dusk.run-suite",
                 "when": "editorLangId == php"
             },
             {
-                "key": "cmd+t cmd+d cmd+p",
+                "key": "cmd+shift+t cmd+p",
                 "command": "better-laravel-dusk.run-previous",
                 "when": "editorLangId == php"
             }
