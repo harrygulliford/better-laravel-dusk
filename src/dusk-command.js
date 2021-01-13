@@ -2,7 +2,7 @@ const findUp = require('find-up');
 const vscode = require('vscode');
 const path = require('path');
 
-module.exports = class PhpUnitCommand {
+module.exports = class DuskCommand {
     constructor(options) {
         this.runFullSuite = options !== undefined
             ? options.runFullSuite
@@ -20,15 +20,12 @@ module.exports = class PhpUnitCommand {
             return this.lastOutput;
         }
 
-        let suiteSuffix = vscode.workspace.getConfiguration('better-phpunit').get('suiteSuffix');
-        suiteSuffix = suiteSuffix ? ' '.concat(suiteSuffix) : '';
-
         if (this.runFullSuite) {
-            this.lastOutput = `${this.binary}${suiteSuffix}${this.suffix}`
+            this.lastOutput = `${this.binary} dusk${this.suffix}`
         } else if (this.runFile) {
-            this.lastOutput = `${this.binary} ${this.file}${this.configuration}${this.suffix}`;
+            this.lastOutput = `${this.binary} dusk ${this.file}${this.configuration}${this.suffix}`;
         } else {
-            this.lastOutput = `${this.binary} ${this.file}${this.filter}${this.configuration}${this.suffix}`;
+            this.lastOutput = `${this.binary} dusk ${this.file}${this.filter}${this.configuration}${this.suffix}`;
         }
 
         return this.lastOutput;
@@ -45,17 +42,11 @@ module.exports = class PhpUnitCommand {
     }
 
     get configuration() {
-        let configFilepath = vscode.workspace.getConfiguration('better-phpunit').get('xmlConfigFilepath');
-        if (configFilepath !== null) {
-            return ` --configuration ${configFilepath}`;
-        }
-        return this.subDirectory
-            ? ` --configuration ${this._normalizePath(path.join(this.subDirectory, 'phpunit.xml'))}`
-            : '';
+        return '';
     }
 
     get suffix() {
-        let suffix = vscode.workspace.getConfiguration('better-phpunit').get('commandSuffix');
+        let suffix = vscode.workspace.getConfiguration('better-laravel-dusk').get('commandSuffix');
 
         return suffix ? ' ' + suffix : ''; // Add a space before the suffix.
     }
@@ -67,21 +58,21 @@ module.exports = class PhpUnitCommand {
     }
 
     get binary() {
-        if (vscode.workspace.getConfiguration('better-phpunit').get('phpunitBinary')) {
-            return vscode.workspace.getConfiguration('better-phpunit').get('phpunitBinary')
+        if (vscode.workspace.getConfiguration('better-laravel-dusk').get('artisanBinary')) {
+            return vscode.workspace.getConfiguration('better-laravel-dusk').get('artisanBinary')
         }
 
         return this.subDirectory
-            ? this._normalizePath(path.join(this.subDirectory, 'vendor', 'bin', 'phpunit'+this.windowsSuffix))
-            : this._normalizePath(path.join(vscode.workspace.rootPath, 'vendor', 'bin', 'phpunit'+this.windowsSuffix));
+            ? this._normalizePath(path.join(this.subDirectory, 'artisan'))
+            : this._normalizePath(path.join(vscode.workspace.rootPath, 'artisan'));
     }
 
     get subDirectory() {
-        // find the closest phpunit.xml file in the project (for projects with multiple "vendor/bin/phpunit"s).
-        let phpunitDotXml = findUp.sync(['phpunit.xml', 'phpunit.xml.dist'], { cwd: vscode.window.activeTextEditor.document.fileName });
+        // find the closest artisan file in the project.
+        let artisanFile = findUp.sync(['artisan'], { cwd: vscode.window.activeTextEditor.document.fileName });
 
-        return path.dirname(phpunitDotXml) !== vscode.workspace.rootPath
-            ? path.dirname(phpunitDotXml)
+        return path.dirname(artisanFile) !== vscode.workspace.rootPath
+            ? path.dirname(artisanFile)
             : null;
     }
 

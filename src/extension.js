@@ -1,69 +1,42 @@
 const vscode = require('vscode');
-const assert = require('assert');
-const PhpUnitCommand = require('./phpunit-command');
-const RemotePhpUnitCommand = require('./remote-phpunit-command.js');
-const DockerPhpUnitCommand = require('./docker-phpunit-command.js');
+const DuskCommand = require('./dusk-command');
 
 var globalCommand;
 
 module.exports.activate = function (context) {
     let disposables = [];
 
-    disposables.push(vscode.commands.registerCommand('better-phpunit.run', async () => {
-        let command;
-
-        if (vscode.workspace.getConfiguration("better-phpunit").get("docker.enable")) {
-            command = new DockerPhpUnitCommand;
-        } else if (vscode.workspace.getConfiguration("better-phpunit").get("ssh.enable")) {
-            command = new RemotePhpUnitCommand;
-        } else {
-            command = new PhpUnitCommand;
-        }
-
-        await runCommand(command);
+    disposables.push(vscode.commands.registerCommand('better-laravel-dusk.run', async () => {
+        await runCommand(
+            new DuskCommand
+        );
     }));
 
-    disposables.push(vscode.commands.registerCommand('better-phpunit.run-file', async () => {
-        let command;
-
-        if (vscode.workspace.getConfiguration("better-phpunit").get("docker.enable")) {
-            command = new DockerPhpUnitCommand({ runFile: true });
-        } else if (vscode.workspace.getConfiguration("better-phpunit").get("ssh.enable")) {
-            command = new RemotePhpUnitCommand({ runFile: true });
-        } else {
-            command = new PhpUnitCommand({ runFile: true });
-        }
-
-        await runCommand(command);
+    disposables.push(vscode.commands.registerCommand('better-laravel-dusk.run-file', async () => {
+        await runCommand(
+            new DuskCommand({ runFile: true })
+        );
     }));
 
-    disposables.push(vscode.commands.registerCommand('better-phpunit.run-suite', async () => {
-        let command;
-
-        if (vscode.workspace.getConfiguration("better-phpunit").get("docker.enable")) {
-            command = new DockerPhpUnitCommand({ runFullSuite: true });
-        } else if (vscode.workspace.getConfiguration("better-phpunit").get("ssh.enable")) {
-            command = new RemotePhpUnitCommand({ runFullSuite: true });
-        } else {
-            command = new PhpUnitCommand({ runFullSuite: true });
-        }
-
-        await runCommand(command);
+    disposables.push(vscode.commands.registerCommand('better-laravel-dusk.run-suite', async () => {
+        await runCommand(
+            new DuskCommand({ runFullSuite: true })
+        );
     }));
 
-    disposables.push(vscode.commands.registerCommand('better-phpunit.run-previous', async () => {
+    disposables.push(vscode.commands.registerCommand('better-laravel-dusk.run-previous', async () => {
         await runPreviousCommand();
     }));
 
-    disposables.push(vscode.tasks.registerTaskProvider('phpunit', {
+    disposables.push(vscode.tasks.registerTaskProvider('laravel-dusk', {
         provideTasks: () => {
             return [new vscode.Task(
-                { type: "phpunit", task: "run" },
+                { type: "laravel-dusk", task: "run" },
                 2,
                 "run",
-                'phpunit',
+                'laravel-dusk',
                 new vscode.ShellExecution(globalCommand.output),
-                '$phpunit'
+                '$laravel-dusk'
             )];
         }
     }));
@@ -75,15 +48,15 @@ async function runCommand(command) {
     setGlobalCommandInstance(command);
 
     vscode.window.activeTextEditor
-        || vscode.window.showErrorMessage('Better PHPUnit: open a file to run this command');
+        || vscode.window.showErrorMessage('Better Laravel Dusk: open a file to run this command');
 
     await vscode.commands.executeCommand('workbench.action.terminal.clear');
-    await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
+    await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'laravel-dusk: run');
 }
 
 async function runPreviousCommand() {
     await vscode.commands.executeCommand('workbench.action.terminal.clear');
-    await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'phpunit: run');
+    await vscode.commands.executeCommand('workbench.action.tasks.runTask', 'laravel-dusk: run');
 }
 
 function setGlobalCommandInstance(commandInstance) {
